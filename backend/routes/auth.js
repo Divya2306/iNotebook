@@ -4,6 +4,7 @@ const router=express.Router();
 const { body, validationResult } = require('express-validator');
 const bcrypt= require('bcryptjs');
 var jwt=require('jsonwebtoken');
+var fetchuser=require('../middleware/fetchuser');
 
 const JWT_SECRET='divyaisagoodg$irl';
 
@@ -71,7 +72,7 @@ router.post('/login',[
 
         const passwordCompare=await bcrypt.compare(password,user.password);
         if(!passwordCompare){
-            return res.status(400).json({error:"please try to login with correct credemtials"});
+            return res.status(400).json({error:"please try to login with correct credentials"});
         }
         const data={
             user:{
@@ -89,11 +90,11 @@ router.post('/login',[
 })
 
 // Route 3: Get login user details using: POST "/api/auth/getuser". login required
-router.post('/getuser', async (req,res)=>{
-
+router.post('/getuser',fetchuser,async (req,res)=>{
     try{
-        userId="todo";
+        userId=req.user.id;
         const user=await User.findById(userId).select("-password");
+        res.send(user);
     }
     catch(error){
         console.error(error.message);
